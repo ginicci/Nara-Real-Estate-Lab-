@@ -7,7 +7,12 @@ import { Field, FormStatus, Honeypot, Select, TextArea, TextInput } from '@/comp
 
 const initial: FormState = { status: 'idle', message: '' }
 
-export function ContactForm() {
+type ContactFormProps = {
+  topic?: 'Buying' | 'Selling' | 'Renting' | 'Other'
+  defaultMessage?: string
+}
+
+export function ContactForm({ topic = 'Buying', defaultMessage }: ContactFormProps) {
   const [state, action, pending] = useActionState(sendContactMessage, initial)
 
   if (state.status === 'success') {
@@ -36,7 +41,7 @@ export function ContactForm() {
         </div>
         <div className="flex-1">
           <Field label="Topic" id="c-topic">
-            <Select id="c-topic" name="topic" defaultValue="Buying">
+            <Select id="c-topic" name="topic" defaultValue={topic}>
               <option>Buying</option>
               <option>Selling</option>
               <option>Renting</option>
@@ -46,7 +51,11 @@ export function ContactForm() {
         </div>
       </div>
       <Field label="Message" id="c-message">
-        <TextArea id="c-message" name="message" required minLength={10} placeholder="What are you looking for?" />
+        <TextArea id="c-message" name="message" required
+          minLength={10}
+          defaultValue={defaultMessage}
+          placeholder="What are you looking for?"
+        />
       </Field>
       <Button type="submit" disabled={pending} className="min-h-11 text-base">
         {pending ? 'Sending…' : 'Send message'}

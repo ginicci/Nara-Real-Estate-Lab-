@@ -1,6 +1,11 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { headers } from 'next/headers'
+import { ArrowRight } from 'lucide-react'
 import { auth } from '@/lib/auth'
+import { findListings } from '@/lib/listings'
+import { ListingCard } from '@/components/listing-card'
+import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 import { WaitlistForm } from '@/components/waitlist-form'
 import { ContactForm } from '@/components/contact-form'
@@ -21,7 +26,10 @@ const services = [
 ]
 
 export default async function HomePage() {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const [session, latest] = await Promise.all([
+    auth.api.getSession({ headers: await headers() }),
+    findListings({}, 3),
+  ])
 
   return (
     <>
@@ -49,6 +57,27 @@ export default async function HomePage() {
             />
           </div>
         </section>
+
+        {latest.length > 0 && (
+          <section aria-labelledby="just-listed" className="border-t border-border">
+            <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-14">
+              <div className="flex items-end justify-between gap-4">
+                <h2 id="just-listed" className="font-serif text-4xl">
+                  Just listed
+                </h2>
+                <Link href="/homes" className="flex min-h-11 items-center gap-1 text-sm text-primary">
+                  See all homes
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </div>
+              <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+                {latest.map((listing) => (
+                  <ListingCard key={listing.id} listing={listing} />
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
 
         <section aria-labelledby="services" className="border-y border-border">
           <div className="mx-auto max-w-6xl px-5 py-14">
@@ -82,12 +111,7 @@ export default async function HomePage() {
           </div>
         </section>
       </main>
-      <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-muted-foreground md:flex-row md:justify-between">
-          <p>{'© 2026 Nara Real Estate Lab'}</p>
-          <p>Ginicci Labs</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </>
   )
 }

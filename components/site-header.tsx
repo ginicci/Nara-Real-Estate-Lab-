@@ -8,7 +8,10 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
           Nara<span className="text-primary">.</span>
         </Link>
         <nav aria-label="Main" className="flex items-center gap-1 text-sm">
-          <Link href="/#contact" className="flex min-h-11 items-center px-3 text-muted-foreground hover:text-foreground">
+          <Link href="/homes" className="flex min-h-11 items-center px-3 text-muted-foreground hover:text-foreground">
+            Homes
+          </Link>
+          <Link href="/#contact" className="flex min-h-11 items-center px-2 text-muted-foreground hover:text-foreground">
             Contact
           </Link>
           <Link

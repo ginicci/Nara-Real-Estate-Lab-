@@ -2,6 +2,8 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { getSavedSearches } from '@/app/actions/searches'
+import { countListings } from '@/lib/listings'
+import { listingsHref } from '@/lib/listing-filters'
 import { SiteHeader } from '@/components/site-header'
 import { SavedSearchForm } from '@/components/saved-search-form'
 import { SavedSearchList } from '@/components/saved-search-list'
@@ -12,7 +14,13 @@ export default async function DashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect('/sign-in')
 
-  const searches = await getSavedSearches()
+  const saved = await getSavedSearches()
+  const searches = await Promise.all(
+    saved.map(async (s) => {
+      const filters = { location: s.location, type: 'buy' as const, maxPrice: s.maxPrice ?? undefined }
+      return { ...s, matches: await countListings(filters), href: listingsHref(filters) }
+    }),
+  )
 
   return (
     <>
