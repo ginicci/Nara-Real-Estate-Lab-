@@ -34,7 +34,12 @@ export async function joinWaitlist(_prev: FormState, formData: FormData): Promis
     .limit(1)
   if (existing.length) return { status: 'success', message: "You're already on the list." }
 
-  const [row] = await db.insert(waitlist).values(entry).returning({ id: waitlist.id })
+  const [row] = await db
+    .insert(waitlist)
+    .values(entry)
+    .onConflictDoNothing({ target: waitlist.email })
+    .returning({ id: waitlist.id })
+  if (!row) return { status: 'success', message: "You're already on the list." }
 
   await sendEmail({
     to: entry.email,
