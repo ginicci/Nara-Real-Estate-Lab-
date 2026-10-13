@@ -45,3 +45,19 @@ export function formatBaths(baths: string | number) {
   const n = Number(baths)
   return Number.isInteger(n) ? String(n) : n.toFixed(1)
 }
+
+type FactSource = { beds: number | null; baths: string | number | null; sqft: number | null }
+
+// Only facts the source actually provided; missing values are left out rather than guessed.
+export function listingFacts({ beds, baths, sqft }: FactSource) {
+  const facts: { label: string; short: string; value: string }[] = []
+  if (beds !== null) facts.push({ label: 'Bedrooms', short: beds === 0 ? 'Studio' : `${beds} bd`, value: beds === 0 ? 'Studio' : String(beds) })
+  if (baths !== null && Number(baths) > 0) facts.push({ label: 'Bathrooms', short: `${formatBaths(baths)} ba`, value: formatBaths(baths) })
+  if (sqft !== null) facts.push({ label: 'Square feet', short: `${sqft.toLocaleString('en-US')} sq ft`, value: sqft.toLocaleString('en-US') })
+  return facts
+}
+
+export function formatVerified(date: Date | string | null) {
+  if (!date) return null
+  return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York' })
+}

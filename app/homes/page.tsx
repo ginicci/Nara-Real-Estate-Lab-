@@ -11,7 +11,7 @@ import { ListingFiltersForm } from '@/components/listing-filters-form'
 
 export const metadata: Metadata = {
   title: 'Homes for sale and rent — Nara Real Estate Lab',
-  description: 'Browse homes for sale and rent across Los Angeles neighborhoods, with honest pricing from a local team.',
+  description: 'Browse active homes for sale and rent across Washington DC, Maryland and Northern Virginia.',
 }
 
 export default async function HomesPage({
@@ -33,7 +33,8 @@ export default async function HomesPage({
         <div className="flex flex-col gap-3">
           <h1 className="font-serif text-5xl leading-none text-balance md:text-6xl">Homes</h1>
           <p className="max-w-md leading-relaxed text-muted-foreground text-pretty">
-            Every listing is checked by an agent before it goes up. If it says available, it is.
+            Active listings across DC, Maryland and Northern Virginia, refreshed daily from RentCast. Confirm
+            details with us before you act on them.
           </p>
         </div>
 
@@ -54,7 +55,7 @@ export default async function HomesPage({
           <div className="flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6">
             <p className="font-serif text-3xl text-balance">Nothing matches yet.</p>
             <p className="leading-relaxed text-muted-foreground">
-              Save this search and we will email you the moment something comes up.
+              Save this search as an alert and check back. Listings refresh once a day.
             </p>
             <Link
               href={signedIn ? '/dashboard' : '/sign-up'}

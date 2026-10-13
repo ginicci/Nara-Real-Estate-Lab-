@@ -14,7 +14,7 @@ export function SavedSearchForm() {
   return (
     <form action={action} className="flex flex-col gap-4">
       <Field label="City or neighborhood" id="location">
-        <TextInput id="location" name="location" required placeholder="e.g. Silver Lake, Los Angeles" />
+        <TextInput id="location" name="location" required placeholder="e.g. Arlington, VA" />
       </Field>
       <Field label="Max price (optional)" id="maxPrice">
         <TextInput id="maxPrice" name="maxPrice" inputMode="numeric" placeholder="850,000" />

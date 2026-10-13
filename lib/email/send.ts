@@ -1,7 +1,15 @@
 import 'server-only'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Created on first send, not at import, so builds without RESEND_API_KEY
+// (e.g. a preview missing the variable) still compile and serve pages.
+let client: Resend | null = null
+function getResend() {
+  const key = process.env.RESEND_API_KEY
+  if (!key) return null
+  client ??= new Resend(key)
+  return client
+}
 
 // Until a domain is verified in Resend, the sandbox sender can only deliver
 // to the inbox that owns the Resend account. Set EMAIL_FROM (e.g.
@@ -18,6 +26,11 @@ type SendInput = {
 }
 
 export async function sendEmail({ idempotencyKey, ...input }: SendInput) {
+  const resend = getResend()
+  if (!resend) {
+    console.error('[email] RESEND_API_KEY is not set; email not sent')
+    return { ok: false as const }
+  }
   const { data, error } = await resend.emails.send(
     { from: FROM, ...input },
     idempotencyKey ? { idempotencyKey } : undefined,

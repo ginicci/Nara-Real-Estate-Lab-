@@ -23,7 +23,7 @@ export function ListingFiltersForm({ filters }: { filters: ListingFilters }) {
           name="location"
           type="search"
           defaultValue={filters.location ?? ''}
-          placeholder="Silver Lake"
+          placeholder="Arlington"
           autoComplete="off"
           enterKeyHint="search"
         />
