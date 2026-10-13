@@ -36,6 +36,10 @@ export function listingsHref(filters: ListingFilters) {
   return query ? `/homes?${query}` : '/homes'
 }
 
+export function isDemoListing(listing: { source: string }) {
+  return listing.source === 'demo'
+}
+
 export function formatPrice(price: number, type: DealType) {
   const amount = `$${price.toLocaleString('en-US')}`
   return type === 'rent' ? `${amount}/mo` : amount

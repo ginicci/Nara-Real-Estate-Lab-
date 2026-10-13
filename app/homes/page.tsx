@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { findListings } from '@/lib/listings'
-import { parseListingFilters } from '@/lib/listing-filters'
+import { isDemoListing, parseListingFilters } from '@/lib/listing-filters'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ListingCard } from '@/components/listing-card'
@@ -25,6 +25,7 @@ export default async function HomesPage({
     findListings(filters),
   ])
   const signedIn = Boolean(session?.user)
+  const hasDemo = results.some(isDemoListing)
 
   return (
     <>
@@ -33,10 +34,17 @@ export default async function HomesPage({
         <div className="flex flex-col gap-3">
           <h1 className="font-serif text-5xl leading-none text-balance md:text-6xl">Homes</h1>
           <p className="max-w-md leading-relaxed text-muted-foreground text-pretty">
-            Active listings across DC, Maryland and Northern Virginia, refreshed daily from RentCast. Confirm
-            details with us before you act on them.
+            Homes for sale and rent across DC, Maryland and Northern Virginia. Confirm details with us before you
+            act on them.
           </p>
         </div>
+
+        {hasDemo && (
+          <p role="note" className="rounded-xl border border-accent bg-accent/15 p-4 text-sm leading-relaxed">
+            <strong className="font-semibold">Preview data.</strong>{' '}
+            {"Homes marked “Demo listing” are made up to show how the site works. They aren't real properties."}
+          </p>
+        )}
 
         <ListingFiltersForm filters={filters} />
 

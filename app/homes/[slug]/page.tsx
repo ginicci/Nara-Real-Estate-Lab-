@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 import { ArrowLeft } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { getListingBySlug } from '@/lib/listings'
-import { formatPrice, formatVerified, listingFacts } from '@/lib/listing-filters'
+import { formatPrice, formatVerified, isDemoListing, listingFacts } from '@/lib/listing-filters'
 import { ListingPhoto } from '@/components/listing-photo'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -35,6 +35,7 @@ export default async function ListingPage({ params }: Props) {
   const isRent = listing.dealType === 'rent'
   const available = listing.status === 'active'
   const verified = formatVerified(listing.lastVerifiedAt)
+  const demo = isDemoListing(listing)
   const place = [listing.city, listing.state].filter(Boolean).join(', ')
 
   return (
@@ -70,6 +71,13 @@ export default async function ListingPage({ params }: Props) {
               <p className="font-serif text-4xl leading-none">{formatPrice(listing.price, listing.dealType)}</p>
             </div>
 
+            {demo && (
+              <p role="note" className="rounded-xl border border-accent bg-accent/15 p-4 text-sm leading-relaxed">
+                <strong className="font-semibold">Demo listing.</strong>{' '}
+                {"This home was made up to preview the site. It isn't for sale or rent, and the photo is illustrative."}
+              </p>
+            )}
+
             {!available && (
               <p role="status" className="rounded-xl border border-border bg-muted p-4 text-sm leading-relaxed">
                 {"This listing wasn't in the latest feed as active, so it may be sold, rented or withdrawn."}
@@ -92,6 +100,7 @@ export default async function ListingPage({ params }: Props) {
               <p className="leading-relaxed text-muted-foreground text-pretty">{listing.description}</p>
             )}
 
+            {!demo && (
             <section aria-label="Listing source" className="flex flex-col gap-1 border-t border-border pt-4 text-sm text-muted-foreground">
               <p>
                 Listing data from {listing.sourceName ?? 'a third-party feed'}
@@ -105,6 +114,7 @@ export default async function ListingPage({ params }: Props) {
               )}
               <p>Details can change. Confirm price and availability with us before you act on them.</p>
             </section>
+            )}
           </article>
 
           <aside aria-labelledby="ask-heading" className="flex flex-col gap-4 md:flex-[2]">

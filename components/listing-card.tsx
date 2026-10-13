@@ -1,10 +1,11 @@
 import Link from 'next/link'
 import type { Listing } from '@/lib/db/schema'
-import { formatPrice, listingFacts } from '@/lib/listing-filters'
+import { formatPrice, isDemoListing, listingFacts } from '@/lib/listing-filters'
 import { ListingPhoto } from '@/components/listing-photo'
 
 export function ListingCard({ listing, priority = false }: { listing: Listing; priority?: boolean }) {
   const facts = listingFacts(listing)
+  const demo = isDemoListing(listing)
   return (
     <li className="flex">
       <Link
@@ -19,9 +20,16 @@ export function ListingCard({ listing, priority = false }: { listing: Listing; p
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <span className="absolute left-3 top-3 rounded-full bg-background/85 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-            {listing.dealType === 'rent' ? 'For rent' : 'For sale'}
-          </span>
+          <div className="absolute inset-x-3 top-3 flex flex-wrap gap-2">
+            <span className="rounded-full bg-background/85 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
+              {listing.dealType === 'rent' ? 'For rent' : 'For sale'}
+            </span>
+            {demo && (
+              <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
+                Demo listing
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-1">
           <div className="flex items-baseline justify-between gap-3">
