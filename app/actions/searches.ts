@@ -3,8 +3,8 @@
 import { and, desc, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
 import { auth } from '@/lib/auth'
+import { recordIdSchema, searchSchema } from '@/lib/validation'
 import { db } from '@/lib/db'
 import { savedSearches } from '@/lib/db/schema'
 import { sendEmail } from '@/lib/email/send'
@@ -25,16 +25,6 @@ export async function getSavedSearches() {
     .where(eq(savedSearches.userId, user.id))
     .orderBy(desc(savedSearches.createdAt))
 }
-
-const searchSchema = z.object({
-  location: z.string().trim().min(2, 'Enter a city or neighborhood').max(80),
-  maxPrice: z
-    .string()
-    .trim()
-    .transform((v) => v.replace(/[^\d]/g, ''))
-    .transform((v) => (v ? Number(v) : null))
-    .refine((v) => v === null || (Number.isSafeInteger(v) && v > 0 && v <= 100_000_000), 'Enter a valid price'),
-})
 
 export async function createSavedSearch(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await getSessionUser()
@@ -66,6 +56,7 @@ export async function createSavedSearch(_prev: FormState, formData: FormData): P
 
 export async function toggleSavedSearch(id: number, notify: boolean) {
   const user = await getSessionUser()
+  if (!recordIdSchema.safeParse(id).success || typeof notify !== 'boolean') return
   await db
     .update(savedSearches)
     .set({ notify })
@@ -75,6 +66,7 @@ export async function toggleSavedSearch(id: number, notify: boolean) {
 
 export async function deleteSavedSearch(id: number) {
   const user = await getSessionUser()
+  if (!recordIdSchema.safeParse(id).success) return
   await db
     .delete(savedSearches)
     .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, user.id)))

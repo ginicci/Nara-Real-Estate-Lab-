@@ -1,7 +1,6 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { and, count, eq, gt } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { contactMessages, waitlist } from '@/lib/db/schema'
 import { inboxAddress, sendEmail } from '@/lib/email/send'
@@ -11,21 +10,9 @@ import {
   waitlistAdminAlert,
   waitlistWelcome,
 } from '@/lib/email/templates'
+import { CONTACT_LIMIT_PER_HOUR, contactSchema, waitlistSchema } from '@/lib/validation'
 
 export type FormState = { status: 'idle' | 'success' | 'error'; message: string }
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .transform((v) => (v.length ? v : null))
-
-const waitlistSchema = z.object({
-  email: z.email('Enter a valid email').trim().toLowerCase().max(254),
-  name: optionalText(80),
-  interest: optionalText(40),
-})
 
 export async function joinWaitlist(_prev: FormState, formData: FormData): Promise<FormState> {
   if (formData.get('company')) return { status: 'success', message: "You're on the list." }
@@ -67,14 +54,6 @@ export async function joinWaitlist(_prev: FormState, formData: FormData): Promis
   return { status: 'success', message: "You're on the list. Check your inbox." }
 }
 
-const contactSchema = z.object({
-  name: z.string().trim().min(1, 'Enter your name').max(80),
-  email: z.email('Enter a valid email').trim().toLowerCase().max(254),
-  phone: optionalText(30),
-  topic: z.enum(['Buying', 'Selling', 'Renting', 'Other']),
-  message: z.string().trim().min(10, 'Tell us a bit more (10+ characters)').max(4000),
-})
-
 export async function sendContactMessage(_prev: FormState, formData: FormData): Promise<FormState> {
   if (formData.get('company')) return { status: 'success', message: 'Thanks, we got it.' }
 
@@ -89,6 +68,19 @@ export async function sendContactMessage(_prev: FormState, formData: FormData): 
     return { status: 'error', message: parsed.error.issues[0]?.message ?? 'Check your details.' }
   }
   const msg = parsed.data
+
+  const [recent] = await db
+    .select({ n: count() })
+    .from(contactMessages)
+    .where(
+      and(
+        eq(contactMessages.email, msg.email),
+        gt(contactMessages.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
+      ),
+    )
+  if ((recent?.n ?? 0) >= CONTACT_LIMIT_PER_HOUR) {
+    return { status: 'error', message: 'You have sent several messages recently. Please try again later.' }
+  }
 
   const [row] = await db.insert(contactMessages).values(msg).returning({ id: contactMessages.id })
 
