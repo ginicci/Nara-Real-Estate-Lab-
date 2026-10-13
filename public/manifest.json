@@ -1,0 +1,10 @@
+{
+  "name": "Nara Real Estate Lab",
+  "short_name": "Nara",
+  "description": "Buy, sell and rent homes with a local team.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1b2a24",
+  "theme_color": "#1b2a24",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
