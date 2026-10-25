@@ -64,9 +64,17 @@ branches, and dedicated least-privilege credentials. Before changing anything:
 
 Automated tests mock database writes; they do not prove live database connectivity,
 record persistence or email delivery. Tests cover category validation, reference responses,
-rate-limit responses, database failure handling and exact admin ID matching. The existing
-rate limit is per-email, not IP-based, and its count/insert is not atomic: rotating email
-addresses or concurrent submissions can bypass it. Stronger abuse protection remains work.
+rate-limit responses, database failure handling and exact admin ID matching. Page-level tests
+now exercise /dashboard/leads itself: signed-out visitors are redirected and empty or
+non-matching allowlists return not-found, all before any lead query runs.
+
+The per-email count/insert now runs in one transaction behind a per-email Postgres
+advisory lock, so concurrent submissions for one address cannot exceed the hourly limit
+(no schema change). It is still per-email, not IP-based: rotating addresses bypasses it.
+IP-based or edge rate limiting (e.g. Upstash Ratelimit or Vercel Firewall rules) remains
+recommended before production. The success message says "Our team has been notified"
+only when the provider accepts the inbox alert; otherwise the saved-but-unverified
+warning is shown. Provider acceptance is still not proof of inbox delivery.
 
 Security headers include CSP **report-only**, never enforcement. Preview X-Robots-Tag
 and robots.txt deny indexing; sitemap returns no URLs outside production. These are not
@@ -99,8 +107,28 @@ If PR Git checks also cannot deploy, ask Vercel support to inspect the project's
 preview-creation authorization and Git deployment eligibility. Do not create a duplicate
 project or disable protection as a workaround.
 
-Final local verification: Next.js 16.4.1 production build completed, including TypeScript
-and all 11 static pages. `pnpm typecheck` passed and 25 tests passed. Final production
-dependency audit still reports 1 critical, 28 high, 35 moderate and 8 low findings;
-the remaining critical is proxy-addr through the shadcn CLI dependency tree. These
-counts describe installed dependencies, not confirmed application exploitability.
+Dependency remediation (follow-up): every production advisory (1 critical, 28 high,
+35 moderate, 8 low) came through the shadcn CLI, which was a runtime dependency although
+the app only uses its CSS at build time. shadcn moved to devDependencies (Vercel still
+installs it for builds). postcss was raised to 8.5.23 and pnpm overrides pin patched
+nanoid, browserslist, baseline-browser-mapping, source-map-js and postcss. Result:
+`pnpm audit` and `pnpm audit --prod` both report no known vulnerabilities (advisory data
+at the time of the check; re-run before approval). 33 tests and typecheck pass.
+
+## Deployment hold — Production-target incident
+
+GitHub records deployment 7319261748 for feature commit 80df166 (created by vercel[bot])
+with environment "Production"; it reported success at
+nara-real-estate-website-7dfjh5byc-ginicci-labs.vercel.app and that URL and the
+production alias now return 404. Why a feature-branch commit targeted Production has not
+been verified: Vercel project reads from this workspace fail at the credential broker,
+so the production branch, Git settings, and the deployment's actual target/source (v0 vs Git)
+are unconfirmed. Do not assume this was only a label.
+
+Until an owner confirms in Vercel > Project > Settings > Git that the production branch
+is `main` and in Deployments that 7dfjh5byc's target and source are understood,
+vercel.json disables Git deployments for `feature/nara-lead-safety`. Pushing this branch
+therefore creates no deployment. To get a Preview: confirm the settings above, remove the
+`git.deploymentEnabled` entry in a new commit, and verify the resulting deployment shows
+target "Preview" with its own Preview environment variables before testing. Remove the
+entry before merging. Do not promote, redeploy or delete 7dfjh5byc without owner review.

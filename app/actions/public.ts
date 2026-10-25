@@ -1,6 +1,6 @@
 'use server'
 
-import { and, count, eq, gt } from 'drizzle-orm'
+import { and, count, eq, gt, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { contactMessages, waitlist } from '@/lib/db/schema'
 import { inboxAddress, sendEmail } from '@/lib/email/send'
@@ -79,37 +79,48 @@ export async function sendContactMessage(_prev: FormState, formData: FormData): 
   const msg = parsed.data
 
   try {
-    const [recent] = await db
-      .select({ n: count() })
-      .from(contactMessages)
-      .where(
-        and(
-          eq(contactMessages.email, msg.email),
-          gt(contactMessages.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
-        ),
-      )
-    if ((recent?.n ?? 0) >= CONTACT_LIMIT_PER_HOUR) {
+    // The advisory lock serializes concurrent submissions for one email, so the
+    // count-then-insert check cannot be raced past the hourly limit. No schema change.
+    const row = await db.transaction(async (tx) => {
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`nara-contact:${msg.email}`}))`)
+      const [recent] = await tx
+        .select({ n: count() })
+        .from(contactMessages)
+        .where(
+          and(
+            eq(contactMessages.email, msg.email),
+            gt(contactMessages.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
+          ),
+        )
+      if ((recent?.n ?? 0) >= CONTACT_LIMIT_PER_HOUR) return null
+      const [inserted] = await tx.insert(contactMessages).values(msg).returning({ id: contactMessages.id })
+      return inserted
+    })
+    if (!row) {
       return { status: 'error', message: 'You have sent several messages recently. Please try again later.' }
     }
 
-    const [row] = await db.insert(contactMessages).values(msg).returning({ id: contactMessages.id })
-
     const inbox = inboxAddress()
-    if (inbox) {
-      await sendEmail({
-        to: inbox,
-        replyTo: msg.email,
-        idempotencyKey: `contact-alert/${row.id}`,
-        ...contactAdminAlert(msg),
-      })
-    }
+    const alert = inbox
+      ? await sendEmail({
+          to: inbox,
+          replyTo: msg.email,
+          idempotencyKey: `contact-alert/${row.id}`,
+          ...contactAdminAlert(msg),
+        })
+      : { ok: false as const }
     await sendEmail({
       to: msg.email,
       idempotencyKey: `contact-receipt/${row.id}`,
       ...contactReceipt(msg.name),
     })
 
-    return { status: 'success', message: `Your submission is saved. Reference: NARA-${row.id}. Email alerts are not yet configured or delivery-verified.` }
+    return {
+      status: 'success',
+      message: alert.ok
+        ? `Your ${msg.topic} inquiry is saved. Reference: NARA-${row.id}. Our team has been notified.`
+        : `Your submission is saved. Reference: NARA-${row.id}. Email alerts are not yet configured or delivery-verified.`,
+    }
   } catch {
     return { status: 'error', message: 'We could not save your submission. Please try again later.' }
   }
