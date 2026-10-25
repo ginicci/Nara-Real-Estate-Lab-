@@ -31,15 +31,20 @@ export async function sendEmail({ idempotencyKey, ...input }: SendInput) {
     console.error('[email] RESEND_API_KEY is not set; email not sent')
     return { ok: false as const }
   }
-  const { data, error } = await resend.emails.send(
-    { from: FROM, ...input },
-    idempotencyKey ? { idempotencyKey } : undefined,
-  )
-  if (error) {
-    console.error('[email] send failed:', error.name, error.message)
+  try {
+    const { data, error } = await resend.emails.send(
+      { from: FROM, ...input },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    )
+    if (error) {
+      console.error('[email] send failed:', error.name, error.message)
+      return { ok: false as const }
+    }
+    return { ok: true as const, id: data?.id }
+  } catch {
+    console.error('[email] provider unavailable; delivery not verified')
     return { ok: false as const }
   }
-  return { ok: true as const, id: data?.id }
 }
 
 export function inboxAddress() {

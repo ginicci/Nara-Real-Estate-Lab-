@@ -11,8 +11,8 @@ export function SiteHeader({ signedIn }: { signedIn: boolean }) {
           <Link href="/homes" className="flex min-h-11 items-center px-3 text-muted-foreground hover:text-foreground">
             Homes
           </Link>
-          <Link href="/#contact" className="flex min-h-11 items-center px-2 text-muted-foreground hover:text-foreground">
-            Contact
+          <Link href="/inquiries/sales" className="flex min-h-11 items-center px-2 text-muted-foreground hover:text-foreground">
+            Inquiries
           </Link>
           <Link
             href={signedIn ? '/dashboard' : '/sign-in'}
