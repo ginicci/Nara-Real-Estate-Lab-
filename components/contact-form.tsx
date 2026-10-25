@@ -8,7 +8,7 @@ import { Field, FormStatus, Honeypot, Select, TextArea, TextInput } from '@/comp
 const initial: FormState = { status: 'idle', message: '' }
 
 type ContactFormProps = {
-  topic?: 'Buying' | 'Selling' | 'Renting' | 'Other'
+  topic?: 'Sales' | 'Investment' | 'Development' | 'Buying' | 'Selling' | 'Renting' | 'Other'
   defaultMessage?: string
 }
 
@@ -18,7 +18,7 @@ export function ContactForm({ topic = 'Buying', defaultMessage }: ContactFormPro
   if (state.status === 'success') {
     return (
       <div className="rounded-xl border border-primary/40 bg-card p-6">
-        <p className="font-serif text-3xl">Message sent.</p>
+        <p className="font-serif text-3xl">Submission saved.</p>
         <p className="mt-2 leading-relaxed text-muted-foreground">{state.message}</p>
       </div>
     )
@@ -42,6 +42,9 @@ export function ContactForm({ topic = 'Buying', defaultMessage }: ContactFormPro
         <div className="flex-1">
           <Field label="Topic" id="c-topic">
             <Select id="c-topic" name="topic" defaultValue={topic}>
+              <option>Sales</option>
+              <option>Investment</option>
+              <option>Development</option>
               <option>Buying</option>
               <option>Selling</option>
               <option>Renting</option>

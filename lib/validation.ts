@@ -24,7 +24,7 @@ export const contactSchema = z.object({
   name: z.string().trim().min(1, 'Enter your name').max(80),
   email: emailField,
   phone: optionalText(30),
-  topic: z.enum(['Buying', 'Selling', 'Renting', 'Other']),
+  topic: z.enum(['Sales', 'Investment', 'Development', 'Buying', 'Selling', 'Renting', 'Other']),
   message: z.string().trim().min(10, 'Tell us a bit more (10+ characters)').max(4000),
 })
 

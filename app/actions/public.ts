@@ -27,36 +27,40 @@ export async function joinWaitlist(_prev: FormState, formData: FormData): Promis
   }
   const entry = parsed.data
 
-  const existing = await db
-    .select({ id: waitlist.id })
-    .from(waitlist)
-    .where(eq(waitlist.email, entry.email))
-    .limit(1)
-  if (existing.length) return { status: 'success', message: "You're already on the list." }
+  try {
+    const existing = await db
+      .select({ id: waitlist.id })
+      .from(waitlist)
+      .where(eq(waitlist.email, entry.email))
+      .limit(1)
+    if (existing.length) return { status: 'success', message: "You're already on the list." }
 
-  const [row] = await db
-    .insert(waitlist)
-    .values(entry)
-    .onConflictDoNothing({ target: waitlist.email })
-    .returning({ id: waitlist.id })
-  if (!row) return { status: 'success', message: "You're already on the list." }
+    const [row] = await db
+      .insert(waitlist)
+      .values(entry)
+      .onConflictDoNothing({ target: waitlist.email })
+      .returning({ id: waitlist.id })
+    if (!row) return { status: 'success', message: "You're already on the list." }
 
-  await sendEmail({
-    to: entry.email,
-    idempotencyKey: `waitlist-welcome/${row.id}`,
-    ...waitlistWelcome(entry.name),
-  })
-  const inbox = inboxAddress()
-  if (inbox) {
     await sendEmail({
-      to: inbox,
-      replyTo: entry.email,
-      idempotencyKey: `waitlist-alert/${row.id}`,
-      ...waitlistAdminAlert(entry),
+      to: entry.email,
+      idempotencyKey: `waitlist-welcome/${row.id}`,
+      ...waitlistWelcome(entry.name),
     })
-  }
+    const inbox = inboxAddress()
+    if (inbox) {
+      await sendEmail({
+        to: inbox,
+        replyTo: entry.email,
+        idempotencyKey: `waitlist-alert/${row.id}`,
+        ...waitlistAdminAlert(entry),
+      })
+    }
 
-  return { status: 'success', message: "You're on the list. Check your inbox." }
+    return { status: 'success', message: "Your submission is saved. Email alerts are not yet configured or delivery-verified." }
+  } catch {
+    return { status: 'error', message: 'We could not save your submission. Please try again later.' }
+  }
 }
 
 export async function sendContactMessage(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -74,35 +78,39 @@ export async function sendContactMessage(_prev: FormState, formData: FormData): 
   }
   const msg = parsed.data
 
-  const [recent] = await db
-    .select({ n: count() })
-    .from(contactMessages)
-    .where(
-      and(
-        eq(contactMessages.email, msg.email),
-        gt(contactMessages.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
-      ),
-    )
-  if ((recent?.n ?? 0) >= CONTACT_LIMIT_PER_HOUR) {
-    return { status: 'error', message: 'You have sent several messages recently. Please try again later.' }
-  }
+  try {
+    const [recent] = await db
+      .select({ n: count() })
+      .from(contactMessages)
+      .where(
+        and(
+          eq(contactMessages.email, msg.email),
+          gt(contactMessages.createdAt, new Date(Date.now() - 60 * 60 * 1000)),
+        ),
+      )
+    if ((recent?.n ?? 0) >= CONTACT_LIMIT_PER_HOUR) {
+      return { status: 'error', message: 'You have sent several messages recently. Please try again later.' }
+    }
 
-  const [row] = await db.insert(contactMessages).values(msg).returning({ id: contactMessages.id })
+    const [row] = await db.insert(contactMessages).values(msg).returning({ id: contactMessages.id })
 
-  const inbox = inboxAddress()
-  if (inbox) {
+    const inbox = inboxAddress()
+    if (inbox) {
+      await sendEmail({
+        to: inbox,
+        replyTo: msg.email,
+        idempotencyKey: `contact-alert/${row.id}`,
+        ...contactAdminAlert(msg),
+      })
+    }
     await sendEmail({
-      to: inbox,
-      replyTo: msg.email,
-      idempotencyKey: `contact-alert/${row.id}`,
-      ...contactAdminAlert(msg),
+      to: msg.email,
+      idempotencyKey: `contact-receipt/${row.id}`,
+      ...contactReceipt(msg.name),
     })
-  }
-  await sendEmail({
-    to: msg.email,
-    idempotencyKey: `contact-receipt/${row.id}`,
-    ...contactReceipt(msg.name),
-  })
 
-  return { status: 'success', message: "Thanks — we'll reply within one business day." }
+    return { status: 'success', message: `Your submission is saved. Reference: NARA-${row.id}. Email alerts are not yet configured or delivery-verified.` }
+  } catch {
+    return { status: 'error', message: 'We could not save your submission. Please try again later.' }
+  }
 }
