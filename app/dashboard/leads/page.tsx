@@ -12,7 +12,7 @@ export const metadata = { title: 'Private lead review', robots: { index: false, 
 export default async function LeadReviewPage() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect('/sign-in')
-  if (!canReviewLeads(session.user.id)) notFound()
+  if (!session.user.emailVerified || !canReviewLeads(session.user.id)) notFound()
 
   let leads: (typeof contactMessages.$inferSelect)[]
   try {
