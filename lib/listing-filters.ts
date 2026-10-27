@@ -1,6 +1,10 @@
 export type DealType = 'buy' | 'rent'
 
 export type ListingFilters = {
+  state?: string
+  manualOnly?: boolean
+  minPrice?: number
+  propertyType?: string
   location?: string
   type?: DealType
   maxPrice?: number
@@ -24,11 +28,17 @@ export function parseListingFilters(params: RawParams): ListingFilters {
   const maxPrice = Number(first(params.maxPrice))
   if (Number.isInteger(maxPrice) && maxPrice > 0 && maxPrice <= 100_000_000) filters.maxPrice = maxPrice
 
+  const minPrice = Number(first(params.minPrice))
+  if (Number.isInteger(minPrice) && minPrice > 0 && minPrice <= 100_000_000) filters.minPrice = minPrice
+  const propertyType = first(params.propertyType)?.trim().slice(0,80)
+  if (propertyType) filters.propertyType = propertyType
   return filters
 }
 
 export function listingsHref(filters: ListingFilters) {
   const params = new URLSearchParams()
+  if (filters.minPrice) params.set('minPrice', String(filters.minPrice))
+  if (filters.propertyType) params.set('propertyType', filters.propertyType)
   if (filters.location) params.set('location', filters.location)
   if (filters.type) params.set('type', filters.type)
   if (filters.maxPrice) params.set('maxPrice', String(filters.maxPrice))

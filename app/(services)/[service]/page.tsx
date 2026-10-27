@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/site-header'
@@ -15,7 +16,11 @@ const services = {
 function serviceData(key:string){return Object.hasOwn(services,key)?services[key as keyof typeof services]:null}
 export async function generateMetadata({params}:{params:Promise<{service:string}>}){const data=serviceData((await params).service);return {title:data?`${data.label} — Nara Real Estate`:'Not found — Nara'}}
 export default async function ServicePage({params}:{params:Promise<{service:string}>}){
- const {service}=await params;const data=serviceData(service);if(!data)notFound()
+ const {service}=await params;
+ if (service==='investment') redirect('/investors')
+ if (service==='wholesale') redirect('/submit-deal')
+ if (service==='sell') redirect('/sell-property')
+const data=serviceData(service);if(!data)notFound()
  return <><SiteHeader signedIn={false}/><main>
   <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 py-12 md:grid-cols-2 md:py-20"><div className="space-y-6"><p className="text-xs uppercase tracking-[.25em] text-primary">{data.label}</p><h1 className="font-serif text-5xl leading-[1.05] md:text-6xl">{data.title}</h1><p className="max-w-lg leading-relaxed text-muted-foreground">{data.text}</p><Link href={data.href} className="inline-flex min-h-12 items-center rounded-full border px-6 hover:border-primary">{data.cta} →</Link></div><div className="relative aspect-[4/3] overflow-hidden rounded-2xl"><Image src="/images/hero-home.png" alt="Residential architecture at dusk, illustrative brand imagery" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover"/></div></section>
   <section className="border-y"><ol className="mx-auto grid max-w-6xl gap-7 px-5 py-10 md:grid-cols-3">{data.steps.map((step,i)=><li key={step} className="space-y-3"><span className="font-serif text-3xl text-primary">0{i+1}</span><p className="text-sm leading-relaxed text-muted-foreground">{step}</p></li>)}</ol></section>

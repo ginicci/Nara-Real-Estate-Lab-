@@ -1,3 +1,4 @@
+import { InvestmentCalculator } from '@/components/investment-calculator'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -98,6 +99,9 @@ export default async function ListingPage({ params }: Props) {
             )}
 
             <p className="text-lg leading-relaxed text-pretty">{listing.summary}</p>
+            <section className="space-y-3 rounded-xl border p-5 text-sm leading-relaxed"><h2 className="text-lg font-semibold">Source & due diligence</h2><p>Listing source: {listing.sourceName ?? listing.source}. Updated {listing.updatedAt.toLocaleDateString('en-US')}.</p><p>Ownership, contractual interest and marketing authority have not been established by this page. Request supporting evidence before relying on an opportunity. No verified ARV, comparable-sales analysis, renovation budget or investment performance is supplied unless explicitly documented in the listing details.</p><p>Do not enter a property without authorized access. A request for a viewing, packet or offer review is not a confirmed appointment or accepted offer.</p></section>
+            <InvestmentCalculator price={listing.price}/>
+
             {listing.description && (
               <p className="leading-relaxed text-muted-foreground text-pretty">{listing.description}</p>
             )}
@@ -122,14 +126,14 @@ export default async function ListingPage({ params }: Props) {
           <aside aria-labelledby="ask-heading" className="flex flex-col gap-4 md:flex-[2]">
             <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 md:sticky md:top-24">
               <h2 id="ask-heading" className="font-serif text-3xl text-balance">
-                {isRent ? 'Ask about this rental' : 'Ask about this home'}
+                Request deal information
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                An agent replies within one business day, and you get a copy by email.
+                Request a deal packet, ask about viewing availability, or express interest below. Private documents are not automatically granted.
               </p>
               <ContactForm
                 topic={isRent ? 'Renting' : 'Buying'}
-                defaultMessage={`I'd like to know more about ${listing.address ?? `${listing.title}, ${place}`}.`}
+                defaultMessage={`Please review my request for deal information / a viewing / an expression of interest for ${listing.address ?? `${listing.title}, ${place}`}.`}
               />
             </div>
           </aside>

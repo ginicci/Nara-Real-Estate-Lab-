@@ -1,5 +1,5 @@
 import 'server-only'
-import { and, asc, count, desc, getTableColumns, gt, isNull, sql, eq, ilike, lte, ne, or, type SQL } from 'drizzle-orm'
+import { and, asc, count, desc, getTableColumns, gte, gt, isNull, sql, eq, ilike, lte, ne, or, type SQL } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { listings, type Listing } from '@/lib/db/schema'
 import type { ListingFilters } from '@/lib/listing-filters'
@@ -26,6 +26,10 @@ function whereFor(filters: ListingFilters) {
       )!,
     )
   }
+  if (filters.state) conditions.push(eq(listings.state, filters.state))
+  if (filters.manualOnly) conditions.push(eq(listings.source, 'manual'))
+  if (filters.minPrice) conditions.push(gte(listings.price, filters.minPrice))
+  if (filters.propertyType) conditions.push(eq(listings.propertyType, filters.propertyType))
   if (filters.type) conditions.push(eq(listings.dealType, filters.type))
   if (filters.maxPrice) conditions.push(lte(listings.price, filters.maxPrice))
   return and(...conditions)

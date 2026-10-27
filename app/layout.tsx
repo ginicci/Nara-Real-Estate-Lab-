@@ -7,9 +7,9 @@ const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'sw
 const instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: '400', variable: '--font-instrument', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'Nara Real Estate Lab — Buy, sell and rent with a local team',
+  title: 'Nara — Virginia Wholesale & Off-Market Investment Marketplace',
   description:
-    'Nara Real Estate Lab helps you buy, sell and rent homes. Join the early-access list, set search alerts, or talk to an agent.',
+    'Explore Virginia investment property opportunities, join the buyers list, or submit a property for review.',
   generator: 'v0.app',
   manifest: '/manifest.json',
   icons: {

@@ -12,11 +12,11 @@ const priceOptions = [
   { value: '2500000', label: 'Up to $2.5M' },
 ]
 
-export function ListingFiltersForm({ filters }: { filters: ListingFilters }) {
-  const hasFilters = Boolean(filters.location || filters.type || filters.maxPrice)
+export function ListingFiltersForm({ filters, action = '/homes' }: { filters: ListingFilters; action?: string }) {
+  const hasFilters = Boolean(filters.location || filters.type || filters.maxPrice || filters.minPrice || filters.propertyType)
 
   return (
-    <form action="/homes" method="get" role="search" className="flex flex-col gap-3 md:flex-row md:items-end">
+    <form action={action} method="get" role="search" className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end">
       <label className="flex flex-col gap-2 md:flex-[2]">
         <span className="text-sm font-medium">Address, neighborhood or city</span>
         <TextInput
@@ -29,7 +29,7 @@ export function ListingFiltersForm({ filters }: { filters: ListingFilters }) {
         />
       </label>
       <div className="flex gap-3 md:contents">
-        <label className="flex flex-1 flex-col gap-2">
+        <label className={action === '/deals' ? 'hidden' : 'flex flex-1 flex-col gap-2'}>
           <span className="text-sm font-medium">Looking to</span>
           <Select name="type" defaultValue={filters.type ?? ''}>
             <option value="">Buy or rent</option>
@@ -51,13 +51,15 @@ export function ListingFiltersForm({ filters }: { filters: ListingFilters }) {
           </Select>
         </label>
       </div>
+      <label className="flex flex-col gap-2"><span className="text-sm font-medium">Min price</span><TextInput name="minPrice" type="number" min="1" defaultValue={filters.minPrice} placeholder="Any" className="md:w-28" /></label>
+      <label className="flex flex-col gap-2"><span className="text-sm font-medium">Property type</span><TextInput name="propertyType" defaultValue={filters.propertyType} placeholder="e.g. Condo" className="md:w-32" /></label>
       <div className="flex gap-3">
         <Button type="submit" className="min-h-11 flex-1 text-base md:flex-none md:px-6">
           Search
         </Button>
         {hasFilters && (
           <Link
-            href="/homes"
+            href={action}
             className="flex min-h-11 items-center rounded-md border border-border px-4 text-sm hover:border-primary"
           >
             Clear

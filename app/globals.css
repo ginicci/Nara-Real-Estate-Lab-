@@ -33,19 +33,19 @@
 /* Pine, stone and brass: a single brand palette, no light/dark split. */
 :root {
   color-scheme: dark;
-  --background: oklch(0.2 0.018 165);
+  --background: oklch(0.18 0.025 255);
   --foreground: oklch(0.95 0.008 95);
-  --card: oklch(0.24 0.018 165);
+  --card: oklch(0.23 0.028 255);
   --card-foreground: oklch(0.95 0.008 95);
-  --popover: oklch(0.24 0.018 165);
+  --popover: oklch(0.23 0.028 255);
   --popover-foreground: oklch(0.95 0.008 95);
   --primary: oklch(0.79 0.1 80);
-  --primary-foreground: oklch(0.2 0.018 165);
-  --secondary: oklch(0.28 0.018 165);
+  --primary-foreground: oklch(0.18 0.025 255);
+  --secondary: oklch(0.27 0.025 255);
   --secondary-foreground: oklch(0.95 0.008 95);
-  --muted: oklch(0.28 0.018 165);
-  --muted-foreground: oklch(0.74 0.012 120);
-  --accent: oklch(0.28 0.018 165);
+  --muted: oklch(0.27 0.025 255);
+  --muted-foreground: oklch(0.76 0.012 255);
+  --accent: oklch(0.27 0.025 255);
   --accent-foreground: oklch(0.95 0.008 95);
   --destructive: oklch(0.7 0.17 25);
   --border: oklch(0.95 0.008 95 / 12%);
