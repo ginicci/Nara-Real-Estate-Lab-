@@ -41,3 +41,11 @@ Provider configuration in **Nara project → Settings → Environment Variables*
 - `NARA_ADMIN_USER_IDS`: confirmed trusted Better Auth IDs. No email-based auto-grants.
 
 Font variables now apply the Next.js-generated Geist and Instrument Serif font faces. Built font files are served locally by Next.js, avoiding visitor-side Google font requests. Navigation includes mobile disclosure, service pages, contact and legal pages; imagery on service pages is illustrative brand imagery, not inventory. Legal text requires owner review before publication, as do brokerage disclosures and any jurisdiction-specific business information.
+
+## Final safety update (supersedes helper instructions above)
+
+After successful preview schema initialization, **the initializer script and its build hook were removed**. `pnpm build` now runs only `next build`; both temporary Vercel initialization flags were deleted. No build or application-start path initializes, resets or migrates any database. Future schema changes require deliberate operator execution of reviewed SQL migrations. Historical helper instructions above document the completed repair, not an available production setup method. Production schema readiness must be checked separately before release.
+
+Observed hosted preview request logs at 17:26 UTC: homepage HTTP 200; service, listing and supporting page requests 200; hero image and CSS 200. No post-repair schema exceptions in the observed runtime window (only a pg SSL-mode deprecation warning). Protected preview fetch redirected to authentication; no hosted authenticated browser inspection was possible from this session.
+
+Local Chromium against the production build and an isolated disposable database: 14 routes at 1440px and 390px returned 200, both fonts loaded, no broken images or horizontal overflow, mobile navigation opened, required form validation worked, no page JavaScript errors. This is not evidence of hosted authenticated admin CRUD or external email/provider delivery. The longer local admin workflow did not complete and is not claimed as passed.
