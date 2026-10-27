@@ -9,6 +9,10 @@ Next.js 16 app with Neon Postgres, Better Auth (email + password) and Resend ema
 - **Accounts**: sign-up, sign-in, sign-out, email verification (with resend), forgot / reset password by email.
 - **Alerts dashboard** (`/dashboard`): signed-in users create, pause and delete saved-search alerts (`nara_saved_searches`), scoped per user.
 
+## Property administration
+
+`/dashboard/properties` extends the existing Nara database and Better Auth accounts with mobile-friendly listing forms, photo uploads, publication/status controls, featured ordering and automatic expiration. See [setup and daily use](docs/property-management.md). Apply migration `0003` before deploying these routes and explicitly configure trusted admin IDs; access defaults to denied. Property changes require no Git commits or redeployments.
+
 ## Environment variables
 
 See [`.env.example`](.env.example).

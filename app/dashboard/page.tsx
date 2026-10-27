@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { canReviewLeads } from '@/lib/lead-access'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
@@ -35,6 +37,8 @@ export default async function DashboardPage() {
         </div>
 
         {!session.user.emailVerified && <VerifyEmailNotice email={session.user.email} />}
+
+        {session.user.emailVerified && canReviewLeads(session.user.id) && <Link href="/dashboard/properties" className="rounded-xl border bg-card p-5 font-medium">Manage properties →</Link>}
 
         <section aria-labelledby="new-alert" className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
           <h2 id="new-alert" className="text-lg font-medium">

@@ -60,6 +60,8 @@ export default async function ListingPage({ params }: Props) {
           />
         </div>
 
+        {listing.photos.length > 1 && <section aria-label="Property photos" className="grid grid-cols-2 gap-3 md:grid-cols-3">{listing.photos.slice(1).map((src,i) => <div key={i} className="relative aspect-[4/3] overflow-hidden rounded-xl"><ListingPhoto src={src} alt={`${listing.title} photo ${i+2}`} sizes="(min-width: 768px) 33vw, 50vw" className="object-cover" /></div>)}</section>}
+
         <div className="flex flex-col gap-10 md:flex-row md:gap-16">
           <article className="flex flex-col gap-6 md:flex-[3]">
             <div className="flex flex-col gap-3">

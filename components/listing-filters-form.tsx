@@ -18,7 +18,7 @@ export function ListingFiltersForm({ filters }: { filters: ListingFilters }) {
   return (
     <form action="/homes" method="get" role="search" className="flex flex-col gap-3 md:flex-row md:items-end">
       <label className="flex flex-col gap-2 md:flex-[2]">
-        <span className="text-sm font-medium">Neighborhood or city</span>
+        <span className="text-sm font-medium">Address, neighborhood or city</span>
         <TextInput
           name="location"
           type="search"

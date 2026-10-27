@@ -24,6 +24,7 @@ export function ListingCard({ listing, priority = false }: { listing: Listing; p
             <span className="rounded-full bg-background/85 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
               {listing.dealType === 'rent' ? 'For rent' : 'For sale'}
             </span>
+            {listing.featured && <span className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground">Featured</span>}
             {demo && (
               <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
                 Demo listing
