@@ -25,3 +25,19 @@
 Local unit tests mock authentication and database writes; they cover access denial, create/edit, conflicts, duplicates, uploads, validation and public query visibility. Build-time opt-in smoke tests exercise actual database constraints/visibility in a rolled-back transaction. Neither replaces a signed-in mobile/browser acceptance test. Confirm add with photos → publish → search/detail/gallery → edit/order → change each status → expiration → sign-out/unauthorized access on the deployed site using an authorized account. No tests create a permanent public property.
 
 This implementation is scoped to Nara only. It does not change Ginicci.com.
+
+## Preview schema repair and delivery setup (October 27)
+
+Runtime logs of the original preview proved that its database lacked `nara_listings` and all Better Auth tables (SCHEMA_MISMATCH / PostgreSQL 42P01). A Ready build did not validate runtime. `NARA_INITIALIZE_PREVIEW=true` together with `NARA_MIGRATE_PROPERTIES=true` on the Nara preview branch explicitly initializes the connected preview schema without seeded accounts or inventory, then runs additive migrations 0003/0004 and rolled-back database checks. The initializer refuses to run outside Preview. Remove both flags after the successful build. This does not provision a database or reuse another project's settings.
+
+Daily saved-search matching is implemented at `/api/cron/search-alerts` (10:30 UTC, production only). Requires CRON_SECRET (32+ random characters), RESEND_API_KEY, verified EMAIL_FROM and verified account emails. Delivery records prevent repeat notifications; provider idempotency keys protect short-window retries. Current bounded batch handles the first 100 enabled searches and up to 100 matches per search; scale the worker before exceeding this volume. Preview does not run scheduled email jobs. No live provider delivery is claimed until tested.
+
+Provider configuration in **Nara project → Settings → Environment Variables**:
+- `RESEND_API_KEY`: Nara's Resend sending API key.
+- `EMAIL_FROM`: Nara sender address on a Resend-verified domain.
+- `CONTACT_INBOX_EMAIL`: Nara's lead notification recipient.
+- `CRON_SECRET`: project-specific cron authorization secret, 32+ random characters.
+- `RENTCAST_API_KEY`: Nara's RentCast subscription key; `LISTING_SYNC_ENABLED=true` is a separate billable-sync opt-in. Without these, manual listing management remains available; no verified provider inventory is fabricated.
+- `NARA_ADMIN_USER_IDS`: confirmed trusted Better Auth IDs. No email-based auto-grants.
+
+Font variables now apply the Next.js-generated Geist and Instrument Serif font faces. Built font files are served locally by Next.js, avoiding visitor-side Google font requests. Navigation includes mobile disclosure, service pages, contact and legal pages; imagery on service pages is illustrative brand imagery, not inventory. Legal text requires owner review before publication, as do brokerage disclosures and any jurisdiction-specific business information.

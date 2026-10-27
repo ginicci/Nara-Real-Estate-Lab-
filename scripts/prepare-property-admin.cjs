@@ -9,9 +9,22 @@ async function main() {
   const client = await pool.connect()
   try {
     const { rows } = await client.query("select to_regclass('public.nara_listings') as listings, to_regclass('public.nara_user') as users")
-    if (!rows[0].listings || !rows[0].users) throw new Error('Existing Nara database required; refusing to initialize another database')
+    if (process.env.NARA_INITIALIZE_PREVIEW === 'true') {
+      if (process.env.VERCEL_ENV !== 'preview') throw new Error('Initialization is preview-only')
+      await client.query(fs.readFileSync('db/migrations/0001_nara_init.sql','utf8'))
+      await client.query(`CREATE TABLE IF NOT EXISTS nara_listings (
+        id serial PRIMARY KEY, slug text NOT NULL UNIQUE, title text NOT NULL,
+        neighborhood text NOT NULL, city text NOT NULL, "dealType" text NOT NULL CHECK ("dealType" IN ('buy','rent')),
+        price integer NOT NULL, beds integer, baths numeric(3,1), sqft integer,
+        summary text NOT NULL, description text, image text, status text NOT NULL DEFAULT 'active',
+        "listedAt" timestamptz NOT NULL DEFAULT now()
+      )`)
+      await client.query(fs.readFileSync('db/migrations/0002_listing_sources.sql','utf8'))
+      console.log('NARA: preview schema initialized without inventory or user seeds.')
+    } else if (!rows[0].listings || !rows[0].users) throw new Error('Existing Nara database required; refusing to initialize another database')
     await client.query(fs.readFileSync('db/migrations/0003_property_admin.sql','utf8'))
-    console.log('NARA: additive property-admin migration applied.')
+    await client.query(fs.readFileSync('db/migrations/0004_saved_search_delivery.sql','utf8'))
+    console.log('NARA: additive property-admin and alert delivery migrations applied.')
     // Exercise database constraints and public visibility with disposable, rolled-back data.
     await client.query('BEGIN')
     const marker = `nara-workflow-test-${crypto.randomUUID()}`

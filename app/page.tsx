@@ -7,13 +7,12 @@ import { findListings } from '@/lib/listings'
 import { ListingCard } from '@/components/listing-card'
 import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
-import { WaitlistForm } from '@/components/waitlist-form'
 import { ContactForm } from '@/components/contact-form'
 
 const services = [
   {
     title: 'Buy',
-    body: 'Save a search and get an email the moment a matching home is listed.',
+    body: 'Explore available properties and save a search tailored to your priorities.',
   },
   {
     title: 'Sell',
@@ -21,7 +20,7 @@ const services = [
   },
   {
     title: 'Rent',
-    body: 'Vetted rentals and a straight answer on what is actually available.',
+    body: 'Explore rental listings and ask about current availability.',
   },
 ]
 
@@ -39,12 +38,13 @@ export default async function HomePage() {
           <div className="flex flex-col gap-6 md:flex-1">
             <p className="text-sm uppercase tracking-widest text-primary">Nara Real Estate Lab</p>
             <h1 className="font-serif text-5xl leading-none text-balance md:text-7xl">
-              Find the house before it finds everyone else.
+              Property. Investment. Development.
             </h1>
             <p className="max-w-md leading-relaxed text-muted-foreground text-pretty">
-              Early access to new listings, honest pricing, and a local team that answers. Join the list to hear first.
+              Distinctive homes. Considered investments. New possibilities. Explore real estate across Virginia, Washington DC and Maryland with a clear view of what comes next.
             </p>
-            <WaitlistForm />
+            <div className="flex flex-wrap gap-3"><Link href="/homes" className="flex min-h-12 items-center rounded-full bg-primary px-6 text-primary-foreground">Explore properties <ArrowRight className="ml-3 size-4" /></Link><Link href="/investment" className="flex min-h-12 items-center rounded-full border px-6">Investment & opportunity</Link></div>
+            <p className="text-xs uppercase tracking-[.2em] text-muted-foreground">Virginia · Washington DC · Maryland</p>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl md:flex-1">
             <Image
@@ -81,18 +81,24 @@ export default async function HomePage() {
 
         <section aria-labelledby="services" className="border-y border-border">
           <div className="mx-auto max-w-6xl px-5 py-14">
+            <p className="mb-3 text-xs uppercase tracking-[.25em] text-primary">A broader perspective</p>
             <h2 id="services" className="font-serif text-4xl">
               What we do
             </h2>
             <ul className="mt-8 flex flex-col md:flex-row md:gap-10">
               {services.map((s) => (
                 <li key={s.title} className="flex flex-col gap-2 border-t border-border py-6 md:flex-1">
-                  <h3 className="text-lg font-medium">{s.title}</h3>
-                  <p className="leading-relaxed text-muted-foreground">{s.body}</p>
+                  <Link href={s.title === 'Rent' ? '/homes?type=rent' : `/${s.title.toLowerCase()}`} className="flex min-h-11 items-center justify-between font-serif text-3xl">{s.title}<ArrowRight className="size-5" /></Link>
+    <p className="leading-relaxed text-muted-foreground">{s.body}</p>
                 </li>
               ))}
             </ul>
           </div>
+        </section>
+
+        <section className="mx-auto grid max-w-6xl gap-6 px-5 py-14 md:grid-cols-2">
+          <article className="space-y-5 rounded-2xl border bg-card p-7 md:p-10"><p className="text-xs uppercase tracking-widest text-primary">Investment</p><h2 className="font-serif text-4xl">Think beyond the address.</h2><p className="leading-relaxed text-muted-foreground">Discuss acquisition criteria, rental strategy and long-term ownership. Start with your goals, not promised returns.</p><Link href="/investment" className="inline-flex min-h-11 items-center gap-2 text-primary">Explore investment <ArrowRight className="size-4" /></Link></article>
+          <article className="space-y-5 rounded-2xl border p-7 md:p-10"><p className="text-xs uppercase tracking-widest text-primary">Development & wholesale</p><h2 className="font-serif text-4xl">See what could be.</h2><p className="leading-relaxed text-muted-foreground">Bring a site, redevelopment idea or property opportunity. Tell us the location, timeline and what you have in mind.</p><Link href="/development" className="inline-flex min-h-11 items-center gap-2 text-primary">Discuss a project <ArrowRight className="size-4" /></Link></article>
         </section>
 
         <section id="contact" aria-labelledby="contact-heading" className="mx-auto max-w-6xl scroll-mt-20 px-5 py-14">
@@ -102,7 +108,7 @@ export default async function HomePage() {
                 Talk to an agent
               </h2>
               <p className="max-w-sm leading-relaxed text-muted-foreground">
-                Tell us what you need. A real person replies within one business day, and you get a copy of your message.
+                Tell us about your property, investment goals or next move. Send a private inquiry to begin the conversation.
               </p>
             </div>
             <div className="md:flex-1">

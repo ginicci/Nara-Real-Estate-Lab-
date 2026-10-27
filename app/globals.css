@@ -3,8 +3,8 @@
 @import 'shadcn/tailwind.css';
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Instrument Serif', 'Instrument Serif Fallback', Georgia, serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), Georgia, serif;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -62,3 +62,11 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+@layer base {
+  a, button { touch-action: manipulation; }
+  a, button, input, textarea, select { transition: border-color 160ms, background-color 160ms, color 160ms; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+  ::selection { background: var(--primary); color: var(--primary-foreground); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }

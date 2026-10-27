@@ -1,0 +1,6 @@
+import { expect,it } from 'vitest'
+import { readFileSync } from 'node:fs'
+it('applies both loaded font variables and allows zoom',()=>{const s=readFileSync('app/layout.tsx','utf8');expect(s).toContain('${geist.variable} ${instrumentSerif.variable}');expect(s).not.toContain('maximumScale')})
+it('contains requested service routes and working inquiry forms',()=>{const s=readFileSync('app/(services)/[service]/page.tsx','utf8');for(const route of ['buy','sell','investment','development','wholesale','contact'])expect(s).toContain(` ${route}:`);expect(s).toContain('<ContactForm topic={data.topic}/>');expect(s).toContain('notFound()')})
+it('does not include Ginicci footer branding or invented returns',()=>{expect(readFileSync('components/site-footer.tsx','utf8')).not.toContain('Ginicci');expect(readFileSync('app/page.tsx','utf8')).toContain('Property. Investment. Development.')})
+it('initialization is opt-in, preview only, and contains no listing seeds',()=>{const s=readFileSync('scripts/prepare-property-admin.cjs','utf8');expect(s).toContain("process.env.NARA_INITIALIZE_PREVIEW === 'true'");expect(s).toContain("process.env.VERCEL_ENV !== 'preview'");expect(s).toContain("await client.query('ROLLBACK')")})

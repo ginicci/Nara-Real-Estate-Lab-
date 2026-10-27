@@ -35,7 +35,8 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: 60 * 60,
     sendResetPassword: async ({ user, url }) => {
       const email = resetPassword(url)
-      await sendEmail({ to: user.email, ...email })
+      const sent = await sendEmail({ to: user.email, ...email })
+      if (!sent.ok) throw new Error('Email delivery is unavailable. Contact Nara for assistance.')
     },
   },
   emailVerification: {
@@ -43,7 +44,8 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       const email = verifyEmail(url)
-      await sendEmail({ to: user.email, ...email })
+      const sent = await sendEmail({ to: user.email, ...email })
+      if (!sent.ok) throw new Error('Email delivery is unavailable. Contact Nara for assistance.')
     },
   },
   trustedOrigins: [
