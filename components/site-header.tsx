@@ -1,27 +1,13 @@
 import Link from 'next/link'
-
+const links = [['/deals','Investment Deals'],['/homes','Find Properties'],['/sell-property','Sell a Property'],['/submit-deal','Submit a Deal'],['/investors','Investors'],['/markets','Markets'],['/resources','Resources'],['/about','About Nara'],['/contact','Contact']]
 export function SiteHeader({ signedIn }: { signedIn: boolean }) {
-  return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-        <Link href="/" className="flex min-h-11 items-center font-serif text-2xl">
-          Nara<span className="text-primary">.</span>
-        </Link>
-        <nav aria-label="Main" className="flex items-center gap-1 text-sm">
-          <Link href="/homes" className="flex min-h-11 items-center px-3 text-muted-foreground hover:text-foreground">
-            Homes
-          </Link>
-          <Link href="/inquiries/sales" className="flex min-h-11 items-center px-2 text-muted-foreground hover:text-foreground">
-            Inquiries
-          </Link>
-          <Link
-            href={signedIn ? '/dashboard' : '/sign-in'}
-            className="flex min-h-11 items-center rounded-full border border-border px-4 hover:border-primary"
-          >
-            {signedIn ? 'My alerts' : 'Sign in'}
-          </Link>
-        </nav>
-      </div>
-    </header>
-  )
+  return <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
+    <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-5 py-3">
+      <Link href="/" aria-label="Nara Real Estate home" className="flex min-h-11 items-center gap-3"><span className="font-serif text-4xl">Nara<span className="text-primary">.</span></span><span className="border-l pl-3 text-[10px] uppercase tracking-[.22em]">Real Estate<br />Wholesale marketplace</span></Link>
+      <nav aria-label="Main" className="order-last hidden w-full flex-wrap items-center justify-center gap-x-6 border-t pt-2 text-xs lg:flex">{links.map(([href,label])=><Link key={href} href={href} className="flex min-h-11 items-center text-muted-foreground hover:text-primary">{label}</Link>)}</nav>
+      <Link href="/investors" className="hidden min-h-11 items-center rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground sm:flex">Join Buyers List</Link>
+      <Link href={signedIn?'/dashboard':'/sign-in'} className="flex min-h-11 items-center rounded-full border px-4 text-sm hover:border-primary">{signedIn?'My searches':'Sign in'}</Link>
+      <details className="w-full border-t pt-2 lg:hidden"><summary className="min-h-11 cursor-pointer py-3 text-sm">Explore Nara</summary><nav aria-label="Mobile" className="grid grid-cols-2 gap-2 pb-3">{links.map(([href,label])=><Link key={href} href={href} className="flex min-h-11 items-center rounded-md border px-3 text-sm">{label}</Link>)}</nav></details>
+    </div>
+  </header>
 }

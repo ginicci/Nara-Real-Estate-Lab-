@@ -22,8 +22,9 @@ export function ListingCard({ listing, priority = false }: { listing: Listing; p
           />
           <div className="absolute inset-x-3 top-3 flex flex-wrap gap-2">
             <span className="rounded-full bg-background/85 px-3 py-1 text-xs font-medium uppercase tracking-wider backdrop-blur">
-              {listing.dealType === 'rent' ? 'For rent' : 'For sale'}
+              {listing.dealType === 'rent' ? 'For rent' : listing.source === 'manual' ? 'Available' : 'For sale'}
             </span>
+            {listing.featured && <span className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground">Featured</span>}
             {demo && (
               <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-foreground">
                 Demo listing
@@ -40,6 +41,8 @@ export function ListingCard({ listing, priority = false }: { listing: Listing; p
             </p>
           </div>
           <p className="font-medium text-pretty group-hover:text-primary">{listing.title}</p>
+          {listing.propertyType && <p className="text-xs text-muted-foreground">{listing.propertyType}</p>}
+          <p className="text-xs text-muted-foreground">Updated {listing.updatedAt.toLocaleDateString('en-US')}</p>
           {facts.length > 0 && (
             <p className="text-sm text-muted-foreground">{facts.map((f) => f.short).join(' · ')}</p>
           )}

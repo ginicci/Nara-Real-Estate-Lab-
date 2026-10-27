@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import { canReviewLeads } from '@/lib/lead-access'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
@@ -28,7 +30,7 @@ export default async function DashboardPage() {
       <main className="mx-auto flex max-w-2xl flex-col gap-8 px-5 py-8">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="font-serif text-4xl text-balance">Your alerts</h1>
+            <h1 className="font-serif text-4xl text-balance">Your investor dashboard</h1>
             <p className="text-sm text-muted-foreground">{session.user.email}</p>
           </div>
           <SignOutButton />
@@ -36,6 +38,10 @@ export default async function DashboardPage() {
 
         {!session.user.emailVerified && <VerifyEmailNotice email={session.user.email} />}
 
+        {session.user.emailVerified && canReviewLeads(session.user.id) && <Link href="/dashboard/properties" className="rounded-xl border bg-card p-5 font-medium">Manage properties →</Link>}
+        {session.user.emailVerified && canReviewLeads(session.user.id) && <Link href="/dashboard/leads" className="rounded-xl border bg-card p-5 font-medium">Review seller, wholesaler and investor inquiries →</Link>}
+
+        <p className="text-sm leading-relaxed text-muted-foreground">Saved searches show current matching homes. Email delivery requires a verified account and configured production email service; matching-property notifications run daily, not instantly.</p>
         <section aria-labelledby="new-alert" className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
           <h2 id="new-alert" className="text-lg font-medium">
             New search alert
