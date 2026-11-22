@@ -54,7 +54,9 @@ export async function syncRentcastListings(): Promise<SyncResult> {
       .values(row)
       .onConflictDoUpdate({
         target: [listings.source, listings.sourceId],
+        setWhere: eq(listings.managed, false),
         set: {
+          updatedAt: verifiedAt,
           price: row.price,
           beds: row.beds,
           baths: row.baths,
@@ -77,7 +79,7 @@ export async function syncRentcastListings(): Promise<SyncResult> {
       .update(listings)
       .set({ status: 'off_market' })
       .where(
-        and(eq(listings.source, 'rentcast'), eq(listings.status, 'active'), lt(listings.lastVerifiedAt, verifiedAt)),
+        and(eq(listings.managed, false), eq(listings.source, 'rentcast'), eq(listings.status, 'active'), lt(listings.lastVerifiedAt, verifiedAt)),
       )
       .returning({ id: listings.id })
     markedOffMarket = stale.length

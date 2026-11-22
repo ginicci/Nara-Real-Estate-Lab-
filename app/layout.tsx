@@ -3,13 +3,13 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Instrument_Serif } from 'next/font/google'
 import './globals.css'
 
-const _geist = Geist({ subsets: ['latin'] })
-const _instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: '400' })
+const geist = Geist({ subsets: ['latin'], variable: '--font-geist', display: 'swap' })
+const instrumentSerif = Instrument_Serif({ subsets: ['latin'], weight: '400', variable: '--font-instrument', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'Nara Real Estate Lab — Buy, sell and rent with a local team',
+  title: 'Nara — Virginia Wholesale & Off-Market Investment Marketplace',
   description:
-    'Nara Real Estate Lab helps you buy, sell and rent homes. Join the early-access list, set search alerts, or talk to an agent.',
+    'Explore Virginia investment property opportunities, join the buyers list, or submit a property for review.',
   generator: 'v0.app',
   manifest: '/manifest.json',
   icons: {
@@ -21,7 +21,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   themeColor: '#1b2a24',
   colorScheme: 'dark',
 }
@@ -32,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
+    <html lang="en" className={`${geist.variable} ${instrumentSerif.variable} bg-background`}>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

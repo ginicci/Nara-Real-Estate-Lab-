@@ -1,4 +1,4 @@
-import { boolean, integer, numeric, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
+import { boolean, jsonb, integer, numeric, pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core'
 
 // Better Auth owns nara_user, nara_session, nara_account and nara_verification
 // (mapped via modelName in lib/auth.ts). These are the app tables.
@@ -49,7 +49,13 @@ export const listings = pgTable(
     summary: text('summary').notNull(),
     description: text('description'),
     image: text('image'),
-    status: text('status', { enum: ['active', 'pending', 'sold', 'off_market'] }).notNull().default('active'),
+    status: text('status', { enum: ['active', 'pending', 'sold', 'rented', 'inactive', 'off_market'] }).notNull().default('active'),
+    managed: boolean('managed').notNull().default(false),
+    photos: jsonb('photos').$type<string[]>().notNull().default([]),
+    featured: boolean('featured').notNull().default(false),
+    sortOrder: integer('sortOrder').notNull().default(0),
+    expiresAt: timestamp('expiresAt', { withTimezone: true }),
+    updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull().defaultNow(),
     listedAt: timestamp('listedAt', { withTimezone: true }).notNull().defaultNow(),
     source: text('source').notNull().default('sample'),
     sourceId: text('sourceId'),

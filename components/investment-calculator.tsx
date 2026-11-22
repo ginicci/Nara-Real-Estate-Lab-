@@ -1,0 +1,8 @@
+'use client'
+import { useState } from 'react'
+export function InvestmentCalculator({price}:{price:number}){
+ const [values,setValues]=useState({purchase:price,renovation:0,holding:0,closing:0,resale:0})
+ const cost=values.purchase+values.renovation+values.holding+values.closing
+ const net=values.resale-cost
+ return <section className="space-y-4 rounded-xl border p-5"><h2 className="text-xl font-semibold">Scenario analysis</h2><p className="text-sm leading-relaxed text-muted-foreground">Buyer-entered assumptions only, not verified estimates, an appraisal or a return forecast. Resale defaults to zero because no supported ARV has been supplied. Include financing, taxes, insurance, resale fees and contingencies in your cost inputs.</p><div className="grid grid-cols-2 gap-4">{Object.entries(values).map(([key,value])=><label key={key} className="flex flex-col gap-2 text-sm capitalize">{key==='resale'?'Assumed resale proceeds ($)':`${key} ($)`}<input type="number" min="0" max="1000000000" value={value} onChange={e=>setValues(v=>({...v,[key]:Math.min(1000000000,Math.max(0,Number(e.target.value)||0))}))} className="min-h-11 min-w-0 rounded-md border bg-background p-3"/></label>)}</div><dl className="grid grid-cols-2 gap-4 border-t pt-4"><div><dt className="text-xs text-muted-foreground">Total modeled cost</dt><dd className="text-xl">${cost.toLocaleString('en-US')}</dd></div><div><dt className="text-xs text-muted-foreground">Hypothetical spread (not guaranteed profit)</dt><dd className="text-xl">{values.resale>0?`$${net.toLocaleString('en-US')}`:'Enter resale assumption'}</dd></div></dl></section>
+}

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
-import { findListings } from '@/lib/listings'
-import { isDemoListing, parseListingFilters } from '@/lib/listing-filters'
+import { countListings, findListings } from '@/lib/listings'
+import { isDemoListing, listingsHref, parseListingFilters } from '@/lib/listing-filters'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ListingCard } from '@/components/listing-card'
@@ -19,10 +19,16 @@ export default async function HomesPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const filters = parseListingFilters(await searchParams)
-  const [session, results] = await Promise.all([
+  const raw = await searchParams
+  const filters = parseListingFilters(raw)
+  const requestedPage = Number(raw.page)
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? Math.min(requestedPage, 100000) : 1
+  const baseHref = listingsHref(filters)
+  const pageHref = (n: number) => `${baseHref}${baseHref.includes('?') ? '&' : '?'}page=${n}`
+  const [session, results, total] = await Promise.all([
     auth.api.getSession({ headers: await headers() }),
-    findListings(filters),
+    findListings(filters, 48, (page - 1) * 48),
+    countListings(filters),
   ])
   const signedIn = Boolean(session?.user)
   const hasDemo = results.some(isDemoListing)
@@ -49,9 +55,15 @@ export default async function HomesPage({
         <ListingFiltersForm filters={filters} />
 
         <p aria-live="polite" className="text-sm text-muted-foreground">
-          {results.length === 1 ? '1 home' : `${results.length} homes`}
+          {total === 1 ? '1 home' : `${total} homes`}
           {filters.location ? ` in or near ${filters.location}` : ''}
         </p>
+
+        {total > 48 && <nav aria-label="Listing pages" className="flex items-center gap-5 text-sm">
+          {page > 1 && <Link className="min-h-11 underline" href={pageHref(page-1)}>Previous</Link>}
+          <span>Page {page} of {Math.ceil(total/48)}</span>
+          {page * 48 < total && <Link className="min-h-11 underline" href={pageHref(page+1)}>Next</Link>}
+        </nav>}
 
         {results.length ? (
           <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
@@ -63,7 +75,7 @@ export default async function HomesPage({
           <div className="flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6">
             <p className="font-serif text-3xl text-balance">Nothing matches yet.</p>
             <p className="leading-relaxed text-muted-foreground">
-              Save this search as an alert and check back. Listings refresh once a day.
+              Save this search as an alert and check back. New listings appear as soon as they are published.
             </p>
             <Link
               href={signedIn ? '/dashboard' : '/sign-up'}

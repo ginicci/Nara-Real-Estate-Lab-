@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ContactForm } from '@/components/contact-form'
+import { SiteFooter } from '@/components/site-footer'
 import { SiteHeader } from '@/components/site-header'
 
 const categories = { sales: 'Sales', investment: 'Investment', development: 'Development' } as const
@@ -15,5 +16,5 @@ export default async function InquiryPage({ params }: { params: Promise<{ catego
     </nav>
     <p>Submissions are saved. Email alerts are not yet configured or delivery-verified.</p>
     <ContactForm key={category} topic={topic} />
-  </main></>
+  </main><SiteFooter /></>
 }
